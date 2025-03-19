@@ -24,11 +24,6 @@ public class MainCP {
             return false;
         if (n <= 3)
             return true;
-//        if (n % 2 == 0 || n % 3 == 0)
-//            return false;
-//        for (int i = 5; i * i <= n; i = i + 6)
-//            if (n % i == 0 || n % (i + 2) == 0)
-//                return false;
         for(int i=2;i*i<=n;i++){
             if(n%i==0) return false;
         }
@@ -36,7 +31,6 @@ public class MainCP {
     }
 
     /* 1. --------------- GCD --------------------- */
-
     public static int gcd(int a, int b){
         if (a == 0)
             return b;
@@ -491,6 +485,22 @@ public class MainCP {
         // main code -->
         cp.FastReader sc=new cp.FastReader();
         cp.FastWriter out = new cp.FastWriter();
+
+//        int num =2;
+//        boolean isPrime = true;
+//        if (num <= 1)
+//            isPrime =  false;
+//        if (num <= 3)
+//            isPrime = true;
+//        for(int i=2;i*i<=num;i++){
+//            if(num%i==0) isPrime =  false;
+//        }
+//        if(isPrime){
+//            System.out.println(num + " is Prime number");
+//        } else{
+//            System.out.println(num + " is not Prime number");
+//        }
+
         int t=sc.nextInt();
         while(t-->0){
             //code here
@@ -521,3 +531,6 @@ public class MainCP {
     }
 
 }
+
+
+

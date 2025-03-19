@@ -1,5 +1,5 @@
 /*
- Author : Anand Mishra
+ Author : anshul makhija
  Moto :   optimised way
  */
 
@@ -500,76 +500,187 @@ public class cp {
         }
     }
 
+    static class State implements Comparable<State> {
+        int row, col, time, strength;
+
+        State(int row, int col, int time, int strength) {
+            this.row = row;
+            this.col = col;
+            this.time = time;
+            this.strength = strength;
+        }
+
+        @Override
+        public int compareTo(State other) {
+            return Integer.compare(this.time, other.time);
+        }
+    }
+
+    static int[] dx = {-1, 0, 1, 0};
+    static int[] dy = {0, 1, 0, -1};
+
+    private static State function(int N, int M, int[][] sharks, int[][] times,
+                                                  int startX, int startY, int endX, int endY, int initialStrength) {
+        // Priority queue to get path with minimum time
+        PriorityQueue<State> pq = new PriorityQueue<>();
+        // Visited array to track maximum strength at each position for given time
+        boolean[][][] visited = new boolean[N][M][10001]; // 10001 for max possible strength
+
+        pq.offer(new State(startX, startY, 0, initialStrength));
+
+        while (!pq.isEmpty()) {
+            State current = pq.poll();
+
+            // If reached destination
+            if (current.row == endX && current.col == endY) {
+                return current;
+            }
+
+            // If strength is already negative, skip
+            if (current.strength < 0) continue;
+
+            // If this state was already visited with better strength, skip
+            if (visited[current.row][current.col][current.strength]) continue;
+            visited[current.row][current.col][current.strength] = true;
+
+            // Try all four directions
+            for (int i = 0; i < 4; i++) {
+                int newRow = current.row + dx[i];
+                int newCol = current.col + dy[i];
+
+                if (newRow >= 0 && newRow < N && newCol >= 0 && newCol < M) {
+                    // Calculate new strength after fighting shark and moving
+                    int newStrength = current.strength - sharks[newRow][newCol] - 1;
+
+                    // If strength is sufficient to fight shark
+                    if (newStrength >= 0) {
+                        int newTime = current.time + times[newRow][newCol];
+                        pq.offer(new State(newRow, newCol, newTime, newStrength));
+                    }
+                }
+            }
+        }
+
+        return null; // No possible path found
+    }
+
     public static void main(String args[])throws IOException
     {
         // main code -->
         FastReader sc=new FastReader();
         FastWriter out = new FastWriter();
             //code here
-        int balance = sc.nextInt();
-        int n = sc.nextInt();
 
-        // Store operations and their values
-        ArrayList<Pair<String, Integer>> task = new ArrayList<>();
-        // Store transaction types (1 for credit, 0 for debit) and amounts
-        ArrayList<Pair<Integer, Integer>> task_index = new ArrayList<>();
-        task_index.add(new Pair<>(0, 0));  // Initialize with dummy value
+//        int balance = sc.nextInt();
+//        int n = sc.nextInt();
+//
+//        // Store operations and their values
+//        ArrayList<Pair<String, Integer>> task = new ArrayList<>();
+//        // Store transaction types (1 for credit, 0 for debit) and amounts
+//        ArrayList<Pair<Integer, Integer>> task_index = new ArrayList<>();
+//        task_index.add(new Pair<>(0, 0));  // Initialize with dummy value
+//
+//        // Read all operations
+//        for (int i = 0; i < n; i++) {
+//            String operation = sc.next();
+//            int val = 0;
+//            if (!operation.equals("read") && !operation.equals("commit")) {
+//                val = sc.nextInt();
+//            }
+//            task.add(new Pair<>(operation, val));
+//
+//            if (operation.equals("credit")) {
+//                task_index.add(new Pair<>(1, val));
+//            }
+//            if (operation.equals("debit")) {
+//                task_index.add(new Pair<>(0, val));
+//            }
+//        }
+//
+//        int commit_count = 0, j = 0;
+//        ArrayList<Integer> commit_balance = new ArrayList<>();
+//
+//        // Process all operations
+//        for (int i = 0; i < n; i++) {
+//            String operation = task.get(i).first;
+//            int val = task.get(i).second;
+//
+//            if (operation.equals("read")) {
+//                System.out.print(balance);
+//                if (i != n-1) System.out.println();
+//            }
+//            else if (operation.equals("credit")) {
+//                balance += val;
+//                j++;
+//            }
+//            else if (operation.equals("debit")) {
+//                balance -= val;
+//                j++;
+//            }
+//            else if (operation.equals("commit")) {
+//                commit_count = j;
+//                commit_balance.add(balance);
+//            }
+//            else if (operation.equals("abort")) {
+//                if (val <= commit_count) {
+//                    continue;
+//                } else {
+//                    if (task_index.get(val).first == 1) {
+//                        balance -= task_index.get(val).second;  // Debit
+//                    } else {
+//                        balance += task_index.get(val).second;  // Credit
+//                    }
+//                }
+//            }
+//            else if (operation.equals("rollback")) {
+//                balance = commit_balance.get(val - 1);
+//            }
+//        }
+        int rows = sc.nextInt();
+        int cols = sc.nextInt();
 
-        // Read all operations
-        for (int i = 0; i < n; i++) {
-            String operation = sc.next();
-            int val = 0;
-            if (!operation.equals("read") && !operation.equals("commit")) {
-                val = sc.nextInt();
-            }
-            task.add(new Pair<>(operation, val));
+        // Read shark strengths and find source/destination
+        int[][] sharkKITaakatPositionKSaath = new int[rows][cols];
+        int HariKStartKaX = -1;
+        int HariKStartKaY = -1;
+        int HariKEndKaX = -1;
+        int HariKEndKaY = -1;
 
-            if (operation.equals("credit")) {
-                task_index.add(new Pair<>(1, val));
-            }
-            if (operation.equals("debit")) {
-                task_index.add(new Pair<>(0, val));
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < rows; j++) {
+                String number = sc.next();
+                if (number.equals("S")) {
+                    HariKStartKaX = i;
+                    HariKStartKaY = j;
+                    sharkKITaakatPositionKSaath[i][j] = 0;
+                } else if (number.equals("D")) {
+                    HariKEndKaX = i;
+                    HariKEndKaY = j;
+                    sharkKITaakatPositionKSaath[i][j] = 0;
+                } else {
+                    sharkKITaakatPositionKSaath[i][j] = Integer.parseInt(number);
+                }
             }
         }
 
-        int commit_count = 0, j = 0;
-        ArrayList<Integer> commit_balance = new ArrayList<>();
+        // Read time matrix
+        int[][] samayPositionKSaath = new int[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                samayPositionKSaath[i][j] = sc.nextInt();
+            }
+        }
 
-        // Process all operations
-        for (int i = 0; i < n; i++) {
-            String operation = task.get(i).first;
-            int val = task.get(i).second;
+        // Read initial strength
+        int HariKiTaakat = sc.nextInt();
 
-            if (operation.equals("read")) {
-                System.out.print(balance);
-                if (i != n-1) System.out.println();
-            }
-            else if (operation.equals("credit")) {
-                balance += val;
-                j++;
-            }
-            else if (operation.equals("debit")) {
-                balance -= val;
-                j++;
-            }
-            else if (operation.equals("commit")) {
-                commit_count = j;
-                commit_balance.add(balance);
-            }
-            else if (operation.equals("abort")) {
-                if (val <= commit_count) {
-                    continue;
-                } else {
-                    if (task_index.get(val).first == 1) {
-                        balance -= task_index.get(val).second;  // Debit
-                    } else {
-                        balance += task_index.get(val).second;  // Credit
-                    }
-                }
-            }
-            else if (operation.equals("rollback")) {
-                balance = commit_balance.get(val - 1);
-            }
+        // Find optimal path
+        State result = function(rows, cols, sharkKITaakatPositionKSaath, samayPositionKSaath, HariKStartKaX, HariKStartKaY, HariKEndKaX, HariKEndKaY, HariKiTaakat);
+
+        if (result == null) {
+            System.out.println("Not Possible");
+        } else {
+            System.out.println(result.time + " " + result.strength);
         }
         out.close();
     }
